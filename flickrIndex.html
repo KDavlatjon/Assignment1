@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalog-Z Bootstrap 5.0 HTML Template</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="css/templatemo-style.css">
+    <style>
+        img {
+            margin: 10px;
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Loader -->
+    <div id="loader-wrapper">
+        <div id="loader"></div>
+
+        <div class="loader-section section-left"></div>
+        <div class="loader-section section-right"></div>
+
+    </div>
+    
+   
+    <div class="tm-hero d-flex justify-content-center align-items-center" data-parallax="scroll"  id="serchbox" style="background-color: #0dcaf0">
+        <form class="d-flex tm-search-form">
+            <input class="form-control tm-search-input" type="search" id="serachInput">
+            <button class="btn btn-outline-success tm-search-btn" type="submit" id="takePhotos">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- View All images -->
+    <div class="container-fluid tm-container-content tm-mt-60" id="images">
+    </div>
+
+    <!-- View selected image -->
+    <div class="container-fluid tm-container-content tm-mt-60" id="photo">
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center tm-paging-col">
+                <button class="btn btn-primary tm-btn-exit" id="exit">Exit</button>
+            </div> 
+        </div>
+        <div class="row tm-mb-90">            
+            <div class="col-xl-8 col-lg-7 col-md-6 col-sm-12">
+                <img src="" alt="Image" class="img-fluid" id="main" style="margin: 0%;">
+            </div>
+            <div class="col-xl-4 col-lg-5 col-md-6 col-sm-12">
+                <div class="tm-bg-gray tm-video-details">   
+                    <div class="mb-4 d-flex flex-wrap">
+                        <div class="mr-4 mb-2">
+                            <span class="tm-text-gray-dark" ><h3>Id: </h3></span><span class="tm-text-primary" id="id"></span>
+                        </div>
+                    </div>               
+                    <div class="mb-4 d-flex flex-wrap">
+                        <div class="mr-4 mb-2">
+                            <span class="tm-text-gray-dark" ><h3>Owner: </h3></span><span class="tm-text-primary" id="owner"></span>
+                        </div>
+                    </div>
+                    <div class="mb-4 d-flex flex-wrap">
+                        <div class="mr-4 mb-2">
+                            <span class="tm-text-gray-dark"><h3>Secret: </h3></span><span class="tm-text-primary" id="secret"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/plugins.js"></script>
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        $(window).on("load", function() {
+            $('body').addClass('loaded');
+        });
+
+        const images_box = document.querySelector('#images');
+
+        $(function () {
+            $("#photo").hide();
+
+            const setImages = (images) => {
+                const box = $('#images .row');
+                box.remove();
+                let row = document.createElement('div');
+                row.setAttribute('class', 'row tm-mb-90 tm-gallery');
+               
+                // view one image
+                $(function(){
+                    $("img").click(function(){
+                    $("#images").hide();
+                    var rasm = $(this).attr("src");
+                    $("#main").attr("src", rasm);
+                    var id = $(this).attr("id");
+                    $("#id").html(id);
+                    var owner = $(this).attr("owner");
+                    $("#owner").html(owner);
+                    var secret = $(this).attr("secret");
+                    $("#secret").html(secret);
+                    $("#photo").show();
+                    })
+                })
+
+
+                if (images) {
+                    images.map((element, index) => {
+console.log(element);
+                        let col = document.createElement('div');
+                        col.setAttribute('class', 'col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 mb-5');
+                        let img = document.createElement('img');
+                        // let t = ${'element.title'}.text;
+                        img.setAttribute('src', `https://farm${element.farm}.staticflickr.com/${element.server}/${element.id}_${element.secret}.jpg`)
+                        img.setAttribute('secret', `${element.secret}`)
+                        img.setAttribute('owner', `${element.owner}`)
+                        img.setAttribute('id', `${element.id}`)
+                        col.append(img);
+                        row.append(col);
+
+                        images_box.append(row);
+                    })
+                } else {
+                    // images_box.append('search input is empty')
+                }
+            }
+
+            fetch(' https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=4b17f1551fb9d23d6e15f78916e84133&tags=city&format=json&nojsoncallback=1')
+                .then(response => response.json())
+                .then(json => setImages(json?.photos?.photo))
+            $('#takePhotos, #exit').click(function (e) {
+                $("#photo").hide();
+                e.preventDefault();
+                $("#images").show();
+
+                let body = $('#serachInput').val()
+                fetch(`https://api.flickr.com/services/rest/?&method=flickr.photos.search&api_key=4b17f1551fb9d23d6e15f78916e84133&tags=${body}&format=json&nojsoncallback=1`)
+                    .then(response => response.json())
+                    .then(json => setImages(json?.photos?.photo))
+            });
+
+        });
+    </script>
+</body>
+</html>
